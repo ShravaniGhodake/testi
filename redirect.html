@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Redirect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        #message {
+            font-size: 16px;
+            word-wrap: break-word;
+            width: 80%;
+            margin: 0 auto;
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Instagram Business Login</h1>
+    <div id="message">Processing...</div>
+
+    <script>
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+
+            if (code) {
+                const clientId = 'YOUR_INSTAGRAM_APP_ID'; // Replace with your Instagram App ID
+                const clientSecret = 'YOUR_INSTAGRAM_APP_SECRET'; // Replace with your Instagram App Secret
+                const redirectUri = 'https://yourusername.github.io/instagram-login/redirect.html'; // Replace with your redirect URI
+
+                const tokenUrl = 'https://api.instagram.com/oauth/access_token';
+
+                const formData = new FormData();
+                formData.append('client_id', clientId);
+                formData.append('client_secret', clientSecret);
+                formData.append('grant_type', 'authorization_code');
+                formData.append('redirect_uri', redirectUri);
+                formData.append('code', code);
+
+                fetch(tokenUrl, {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.data && data.data.access_token) {
+                        document.getElementById('message').innerHTML = `<p>Access Token: ${data.data.access_token}</p>`;
+                    } else {
+                        document.getElementById('message').textContent = 'Error retrieving access token.';
+                    }
+                })
+                .catch(error => {
+                    document.getElementById('message').textContent = 'Error: ' + error.message;
+                });
+            } else {
+                document.getElementById('message').textContent = 'No authorization code found.';
+            }
+        };
+    </script>
+</body>
+</html>
