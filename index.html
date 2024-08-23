@@ -25,12 +25,10 @@
     <a id="login-button" href="#">Login with Instagram</a>
 
     <script>
-        const clientId = 'YOUR_INSTAGRAM_APP_ID'; // Replace with your Instagram App ID
-        const redirectUri = 'https://yourusername.github.io/instagram-login/redirect.html'; // Replace with your redirect URI
-        const scope = 'business_basic,business_manage_messages,business_manage_comments,business_content_publish';
+       
 
         document.getElementById('login-button').href = 
-            `https://www.instagram.com/oauth/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=${encodeURIComponent(scope)}`;
+            https://www.instagram.com/oauth/authorize?enable_fb_login=0&force_authentication=1&client_id=1144285786661182&redirect_uri=https://shravanighodake.github.io/testi/redirect.html&response_type=code&scope=business_basic%2Cbusiness_manage_messages%2Cbusiness_manage_comments%2Cbusiness_content_publish
     </script>
 </body>
 </html>
