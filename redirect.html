@@ -3,66 +3,87 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Redirect</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin-top: 50px;
-        }
-        #message {
-            font-size: 16px;
-            word-wrap: break-word;
-            width: 80%;
-            margin: 0 auto;
-            background-color: #f0f0f0;
-            padding: 10px;
-            border-radius: 5px;
-        }
-    </style>
+    <title>Instagram Callback</title>
 </head>
 <body>
-    <h1>Instagram Business Login</h1>
-    <div id="message">Processing...</div>
 
-    <script>
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const code = urlParams.get('code');
+<h2>Instagram Callback</h2>
 
-            if (code) {
-                const clientId = '1144285786661182'; // Replace with your Instagram App ID
-                const clientSecret = 'a0d2d6e0889239d61297e7694a46ca61'; // Replace with your Instagram App Secret
-                const redirectUri = 'https://shravanighodake.github.io/testi/redirect.html'; // Replace with your redirect URI
+<div id="info"></div>
 
-                const tokenUrl = 'https://api.instagram.com/oauth/access_token';
+<script>
+    const CLIENT_ID = '1144285786661182'; // Your Instagram App ID
+    const CLIENT_SECRET = 'a0d2d6e0889239d61297e7694a46ca61'; // Your Instagram App Secret
+    const REDIRECT_URI = 'https://shravanighodake.github.io/testi/redirect.html'; // Your Redirect URI
 
-                const formData = new FormData();
-                formData.append('client_id', clientId);
-                formData.append('client_secret', clientSecret);
-                formData.append('grant_type', 'authorization_code');
-                formData.append('redirect_uri', redirectUri);
-                formData.append('code', code);
+    function getAccessToken(code) {
+        const url = 'https://api.instagram.com/oauth/access_token';
+        const data = new URLSearchParams({
+            client_id: CLIENT_ID,
+            client_secret: CLIENT_SECRET,
+            grant_type: 'authorization_code',
+            redirect_uri: REDIRECT_URI,
+            code: code
+        });
 
-                fetch(tokenUrl, {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.data && data.data.access_token) {
-                        document.getElementById('message').innerHTML = `<p>Access Token: ${data.data.access_token}</p>`;
-                    } else {
-                        document.getElementById('message').textContent = 'Error retrieving access token.';
-                    }
-                })
-                .catch(error => {
-                    document.getElementById('message').textContent = 'Error: ' + error.message;
-                });
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: data
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.access_token) {
+                fetchBusinessInfo(data.access_token);
             } else {
-                document.getElementById('message').textContent = 'No authorization code found.';
+                document.getElementById('info').innerHTML = 'Failed to get access token. Response: ' + JSON.stringify(data);
             }
-        };
-    </script>
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('info').innerHTML = 'An error occurred. Please check the console for details.';
+        });
+    }
+
+    function fetchBusinessInfo(accessToken) {
+        const url = `https://graph.instagram.com/me?fields=id,username,account_type,media_count&access_token=${accessToken}`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.id) {
+                    document.getElementById('info').innerHTML = `
+                        <p><strong>Account ID:</strong> ${data.id}</p>
+                        <p><strong>Username:</strong> ${data.username}</p>
+                        <p><strong>Account Type:</strong> ${data.account_type}</p>
+                        <p><strong>Media Count:</strong> ${data.media_count}</p>
+                    `;
+                } else {
+                    document.getElementById('info').innerHTML = 'Failed to fetch user details. Response: ' + JSON.stringify(data);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('info').innerHTML = 'An error occurred while fetching business info.';
+            });
+    }
+
+    function getQueryParameter(name) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(name);
+    }
+
+    window.onload = function() {
+        const code = getQueryParameter('code');
+        if (code) {
+            getAccessToken(code);
+        } else {
+            document.getElementById('info').innerHTML = 'No authorization code found.';
+        }
+    };
+</script>
+
 </body>
 </html>
